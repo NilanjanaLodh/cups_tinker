@@ -13,18 +13,56 @@ Write functions using the new CUPS API for
 
 #define _CUPS_NO_DEPRECATED 1 
 
+typedef struct
+{
+  int num_dests;
+  cups_dest_t *dests;
+} dest_list_t;
+
 int print_dest(void *user_data , unsigned flags , cups_dest_t *dest); 
 void listCupsQueues();
+void listLocalQueues();
 
 int main()
 {
-  listCupsQueues();
+  //listCupsQueues();
+  listLocalQueues();
 }
 
 
+
+
+
+int addDestToList(dest_list_t *user_data, unsigned flags,
+           cups_dest_t *dest)
+{
+  if (flags & CUPS_DEST_FLAGS_REMOVED)
+  {
+   /*
+    * Remove destination from array...
+    */
+
+    user_data->num_dests =
+        cupsRemoveDest(dest->name, dest->instance,
+                       user_data->num_dests,
+                       &(user_data->dests));
+  }
+  else
+  {
+   /*
+    * Add destination to array...
+    */
+    user_data->num_dests =
+        cupsCopyDest(dest, user_data->num_dests,
+                     &(user_data->dests));
+  }
+
+  return (1);
+}
+
 /**
-  CallBack function for cupsEnumDests()
   Prints the destination name(printer or class)
+  CallBack function for cupsEnumDests()
 **/
 int print_dest(void *user_data, unsigned flags, cups_dest_t *dest)
 {
@@ -37,8 +75,9 @@ int print_dest(void *user_data, unsigned flags, cups_dest_t *dest)
 }
 
 
+
 /**
-  Lists all available CUPS queues (hardwired + local)
+  Lists all available CUPS queues (hardwired + temporary)
 **/
 void listCupsQueues()
 {
@@ -51,5 +90,11 @@ void listCupsQueues()
                 cups_ptype_t type, cups_ptype_t mask,
                 cups_dest_cb_t cb, void *user_data)
   **/
+}
+
+void listLocalQueues()
+{
+  printf("Listing local Queues..\n");
+  cupsEnumDests(CUPS_DEST_FLAGS_NONE, 1000, NULL, CUPS_PRINTER_LOCAL, CUPS_PRINTER_REMOTE, print_dest, NULL);
 }
 
