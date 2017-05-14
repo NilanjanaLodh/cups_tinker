@@ -30,5 +30,6 @@ void listLocalQueues();
 void addAllQueues(dest_list_t *arr);
 void addLocalQueues(dest_list_t *arr);
 void printDestList(dest_list_t *arr);
+void printOptions(char *name);
 
 #endif // MYLIB_H_

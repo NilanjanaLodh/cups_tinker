@@ -107,11 +107,70 @@ void printOptions(char *name)
 {
   dest_list_t list = {0, NULL};
   addAllQueues(&list);
-  cups_dest_t *dest = cupsGetDest(name, NULL, list.num_dests, &list.dests);
+  cups_dest_t *dest ;
+  dest = cupsGetDest(name,NULL ,list.num_dests, list.dests);
   if(dest==NULL)
   {
     printf("Invalid name/Destination not available.\n");
     return;
   }
-  cups_dinfo_t *dest_info = cupsCopyDestInfo(CUPS_HTTP_DEFAULT, dest);
+
+  http_t *http;
+  if ((http = cupsConnectDest(dest, CUPS_DEST_FLAGS_NONE, 30000, NULL, NULL, 0, NULL, NULL)) == NULL)
+  {
+    printf("Unable to connect to destination.\n");
+    return ;
+  }
+
+  cups_dinfo_t *dinfo = cupsCopyDestInfo(http, dest);
+  if(dinfo==NULL)
+  {
+    printf("Unable to connect to destination\n");
+    return ;
+  }
+
+  printf("%d options set for destination %s.\n",dest->num_options,dest->name);
+  int i;
+  cups_option_t *opt=dest->options;
+  for(i=0;i<dest->num_options;i++,opt++)
+  {
+    printf("%s : %s\n",opt->name , opt->value);
+  }
+
+}
+
+void printDefaultOptions(char *name)
+{
+  dest_list_t list = {0, NULL};
+  addAllQueues(&list);
+  cups_dest_t *dest ;
+  dest = cupsGetDest(name,NULL ,list.num_dests, list.dests);
+  if(dest==NULL)
+  {
+    printf("Invalid name/Destination not available.\n");
+    return;
+  }
+
+  http_t *http;
+  if ((http = cupsConnectDest(dest, CUPS_DEST_FLAGS_NONE, 30000, NULL, NULL, 0, NULL, NULL)) == NULL)
+  {
+    printf("Unable to connect to destination.\n");
+    return ;
+  }
+
+  cups_dinfo_t *dinfo = cupsCopyDestInfo(http, dest);
+  if(dinfo==NULL)
+  {
+    printf("Unable to connect to destination\n");
+    return ;
+  }
+
+  printf("%d options set for destination %s.\n",dest->num_options,dest->name);
+  int i;
+  cups_option_t *opt=dest->options;
+  for(i=0;i<dest->num_options;i++,opt++)
+  {
+    printf("%s : %s\n",opt->name , opt->value);
+  }
+
 }
