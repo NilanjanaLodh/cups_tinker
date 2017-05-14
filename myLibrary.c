@@ -103,7 +103,7 @@ void printDestList(dest_list_t *arr)
   }
 }
 
-void printOptions(char *name)
+void printUserDefaultOptions(char *name)
 {
   dest_list_t list = {0, NULL};
   addAllQueues(&list);
@@ -113,20 +113,6 @@ void printOptions(char *name)
   {
     printf("Invalid name/Destination not available.\n");
     return;
-  }
-
-  http_t *http;
-  if ((http = cupsConnectDest(dest, CUPS_DEST_FLAGS_NONE, 30000, NULL, NULL, 0, NULL, NULL)) == NULL)
-  {
-    printf("Unable to connect to destination.\n");
-    return ;
-  }
-
-  cups_dinfo_t *dinfo = cupsCopyDestInfo(http, dest);
-  if(dinfo==NULL)
-  {
-    printf("Unable to connect to destination\n");
-    return ;
   }
 
   printf("%d options set for destination %s.\n",dest->num_options,dest->name);
@@ -139,7 +125,7 @@ void printOptions(char *name)
 
 }
 
-void printDefaultOptions(char *name)
+void printDestDefaultOptions(char *name)
 {
   dest_list_t list = {0, NULL};
   addAllQueues(&list);
@@ -164,13 +150,60 @@ void printDefaultOptions(char *name)
     printf("Unable to connect to destination\n");
     return ;
   }
+  ipp_attribute_t *attrs =
+      cupsFindDestSupported(http, dest, dinfo,
+                            "job-creation-attributes");
 
-  printf("%d options set for destination %s.\n",dest->num_options,dest->name);
-  int i;
-  cups_option_t *opt=dest->options;
-  for(i=0;i<dest->num_options;i++,opt++)
+  int i, num_option = ippGetCount(attrs);
+  char *opt , *val;
+  ipp_attribute_t *opt_attr;
+  for(i=0;i<num_option;i++)
   {
-    printf("%s : %s\n",opt->name , opt->value);
+    opt = ippGetString(attrs,i,NULL);
+    opt_attr = cupsFindDestDefault(http, dest, dinfo,
+                        opt);
+    val = ippGetString(opt_attr , 0 , NULL);
+    if(val)
+      printf("%s : %s\n",opt , val);
+    else
+      printf("%s : %d\n",opt , ippGetInteger(opt_attr,0));
+  }
+} 
+
+void listSupportedOptions(char *name)
+{
+  /**just a test function **/
+  dest_list_t list = {0, NULL};
+  addAllQueues(&list);
+  cups_dest_t *dest;
+  dest = cupsGetDest(name, NULL, list.num_dests, list.dests);
+  if (dest == NULL)
+  {
+    printf("Invalid name/Destination not available.\n");
+    return;
   }
 
+  http_t *http;
+  if ((http = cupsConnectDest(dest, CUPS_DEST_FLAGS_NONE, 30000, NULL, NULL, 0, NULL, NULL)) == NULL)
+  {
+    printf("Unable to connect to destination.\n");
+    return;
+  }
+
+  cups_dinfo_t *dinfo = cupsCopyDestInfo(http, dest);
+  if (dinfo == NULL)
+  {
+    printf("Unable to connect to destination\n");
+    return;
+  }
+
+  printf("Supported options : \n");
+  ipp_attribute_t *attrs =
+      cupsFindDestSupported(http, dest, dinfo,
+                            "job-creation-attributes");
+  int i, count = ippGetCount(attrs);
+  printf("No. of supported options is %d.\n", count);
+
+  for (i = 0; i < count; i++)
+    puts(ippGetString(attrs, i, NULL));
 }
