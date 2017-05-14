@@ -5,13 +5,8 @@ int main(int argc , char **argv)
 {
     if(argc==2)
     {
-        printOptions(argv[1]);
-    }
-    else
-    {
-        printf("Usage: ./listOpt printername \
-                       \nFlags :\
-                       \n       [-d] (for default settings)\n");
+        //printOptions(argv[1]);
+        testOpt(argv[1]);
     }
     return 0;
 }
