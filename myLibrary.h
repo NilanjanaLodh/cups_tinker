@@ -23,13 +23,18 @@ typedef struct
   cups_dest_t *dests;
 } dest_list_t;
 
-int addDestToList(dest_list_t *user_data , unsigned flags , cups_dest_t *dest); 
-int printDest(void *user_data , unsigned flags , cups_dest_t *dest); 
-void listCupsQueues();
-void listLocalQueues();
-void addAllQueues(dest_list_t *arr);
-void addLocalQueues(dest_list_t *arr);
-void printDestList(dest_list_t *arr);
-void printOptions(char *name);
+int addDestToList(dest_list_t *user_data , unsigned flags , cups_dest_t *dest);  /** call back function **/
+int printDest(void *user_data , unsigned flags , cups_dest_t *dest); /**call back function **/
+void listCupsQueues(); /** print all cups local, and remote queues (hardwired + tmporary) **/
+void listLocalQueues(); /**print only the local cups queues **/
+void addAllQueues(dest_list_t *arr); /** Adds all destinations(local + remote), (hardwired + temporary) to the destination list **/
+void addLocalQueues(dest_list_t *arr);/** Adds local destinations to the destination list **/
+void printDestList(dest_list_t *arr);/** Print all the destinations in the list **/
+void printUserDefaultOptions(char *name); /** print User defaults for a particular printer **/
+void printDestDefaultOptions(char *name); /** print destination defaults for a particular printer **/
+void listSupportedOptions(char *name); /** Print list of supported(customizable) options for the particular destination **/
+void printSupportedValues(char *name);/** Supposed to print all the supported (Ready) Values for each option But thos doesnt really work :( ) **/
+void testPrintJob(char *filename, char *dname); /** submit a job with sample options **/
+void testPrintJob2(char *filename, char *dname); /**same as above but streams the data instead **/
 
 #endif // MYLIB_H_

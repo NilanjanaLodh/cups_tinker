@@ -12,7 +12,7 @@ int main(int argc , char **argv)
     int i;
     if(argc==2)
     {
-        printUserDefaultOptions(argv[1]);
+        printSupportedValues(argv[1]);
     }
     for(i=2;i<argc;i++)
     {
@@ -23,6 +23,10 @@ int main(int argc , char **argv)
         }
         switch(argv[2][1])
         {
+            case 'u':
+                printf("User default values :\n");
+                printUserDefaultOptions(argv[1]);
+                break;
             case 's':
                 listSupportedOptions(argv[1]);
                 break;
@@ -43,6 +47,7 @@ void usage()
 {
             printf("Usage: ./listOpt printername \
                        \nFlags(Only one at a time) :\
+                       \n       [-u] (for user default options)\
                        \n       [-s] (for list of supported options)\
                        \n       [-d] (for destination default settings)\n");
 }
